@@ -246,10 +246,9 @@ public class Unit : MonoBehaviour, Highlightable {
 		elevChange = false;
 		for (int i = 1; i <= radius; ++i) {
 			if (centerZ + i >= Map.gridHeight) break;
-			print ("looking north");
 			// now that we know we *could* move there, get the elevation difference
 			if (!validElevationChange(Map.S.grid[centerZ + i - 1, centerX], Map.S.grid[centerZ + i, centerX],
-			                          elevOpt) && !HomeFlag(Map.S.grid[centerZ + i, centerX])) break;
+			                          elevOpt) || HomeFlag(Map.S.grid[centerZ + i, centerX])) break;
 			// everything's cool, add tile to list
 			tiles.Add(Map.S.grid[centerZ + i, centerX]);
 		}
@@ -257,27 +256,24 @@ public class Unit : MonoBehaviour, Highlightable {
 		elevChange = false;
 		for (int i = 1; i <= radius; ++i) {
 			if (centerZ - i < 0) break;
-			print ("looking south");
 			if (!validElevationChange(Map.S.grid[centerZ - i + 1, centerX], Map.S.grid[centerZ - i, centerX],
-			                          elevOpt) && !HomeFlag (Map.S.grid[centerZ - i, centerX])) break;
+			                          elevOpt) || HomeFlag (Map.S.grid[centerZ - i, centerX])) break;
 			tiles.Add (Map.S.grid[centerZ - i, centerX]);
 		}
 		// east
 		elevChange = false;
 		for (int i = 1; i <= radius; ++i) {
 			if (centerX + i >= Map.gridWidth) break;
-			print ("looking east");
 			if (!validElevationChange(Map.S.grid[centerZ, centerX + i - 1], Map.S.grid[centerZ, centerX + i],
-			                          elevOpt) && !HomeFlag(Map.S.grid[centerZ, centerX + i])) break;
+			                          elevOpt) || HomeFlag(Map.S.grid[centerZ, centerX + i])) break;
 			tiles.Add (Map.S.grid[centerZ, centerX + i]);
 		}
 		// west
 		elevChange = false;
 		for (int i = 1; i <= radius; ++i) {
 			if (centerX - i < 0) break;
-			print ("looking west");
 			if (!validElevationChange(Map.S.grid[centerZ, centerX - i + 1], Map.S.grid[centerZ, centerX - i],
-			                          elevOpt) && !HomeFlag(Map.S.grid[centerZ, centerX - i])) break;
+			                          elevOpt) || HomeFlag(Map.S.grid[centerZ, centerX - i])) break;
 			tiles.Add (Map.S.grid[centerZ, centerX - i]);
 		}
 		if (tiles.Count == 0)
