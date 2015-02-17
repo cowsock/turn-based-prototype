@@ -14,11 +14,7 @@ public enum turnState_e{
 	end
 }
 
-public enum MovePhaseState_e{
-	selectFriendlyUnit,
-	selectMove,
-	selectTarget
-}
+
 
 public class TurnManager : MonoBehaviour {
 	static public TurnManager S;
@@ -30,10 +26,11 @@ public class TurnManager : MonoBehaviour {
 
 	public Team_e activePlayer; 
 	public turnState_e turnPhase;
-	public MovePhaseState_e movePhaseState;
 
 	int receivedMoveOrders;
 	int receivedChangeOrders;
+
+	List<Highlightable> playerOptions;
 
 	// gui stuff
 	public Text curPlayerText;
@@ -76,6 +73,8 @@ public class TurnManager : MonoBehaviour {
 		//changesRemaining.enabled = false;
 		gearChangeCanvas.SetActive(false);
 		StartCoroutine (MovePhase ());
+		playerOptions = null;
+		
 	}
 	
 	// Update is called once per frame
@@ -88,7 +87,19 @@ public class TurnManager : MonoBehaviour {
 	IEnumerator MovePhase(){
 		receivedMoveOrders = 0;
 		while (receivedMoveOrders < moves_per_turn) {
-
+			if (selectedUnit && playerOptions == null){
+				if (!selectedUnit.Attacker()){
+					playerOptions = selectedUnit.GetValidMoves();
+				}
+				else {
+					playerOptions = selectedUnit.GetValidAttacks();
+				}
+				if (playerOptions != null){
+					foreach(Highlightable h in playerOptions){
+						h.Highlight();
+					}
+				}
+			}
 			yield return null;
 		}
 		//*** be sure to check for game end here. 
@@ -133,8 +144,8 @@ public class TurnManager : MonoBehaviour {
 
 	public void SelectUnit(Unit unit){
 		if (activePlayer != unit.team) {
-			if (turnPhase == turnState_e.movement || movePhaseState == MovePhaseState_e.selectTarget){
-				// select this unit as a target
+			if (turnPhase == turnState_e.movement){
+				SelectEnemy (unit);
 				return;
 			}	
 			else return;
@@ -148,12 +159,75 @@ public class TurnManager : MonoBehaviour {
 	public void UnSelectUnit(){
 		if (selectedUnit != null)
 			selectedUnit.Highlight (); // unhighlight this unit
+			if (playerOptions != null) {
+				foreach(Highlightable h in playerOptions){
+					h.Highlight();
+				}	
+				playerOptions.Clear ();
+				playerOptions = null;
+			}
 		selectedUnit = null;
+
+	}
+
+	// called by a tile that is clicked, used to facilitate movement
+	// if that tile is a destination option
+	public void SelectTile(Tile tile){
+		if (turnPhase != turnState_e.movement)
+						return;
+		if (tile.unit != null)
+						return;
+		if (playerOptions == null)
+						return;
+		if (playerOptions.Contains (tile)) {
+			// tile is a vaild location to move to!
+			selectedUnit.MoveTo(tile);
+			CheckForGameEnd(selectedUnit);
+			++receivedMoveOrders;
+			UnSelectUnit();
+		}
+	}
+
+	// called by a unit that is clicked, used to facilitate
+	// attacks against that unit
+	void SelectEnemy(Unit unit){
+		if (playerOptions == null)
+						return;
+		if (playerOptions.Contains (unit)) {
+
+			if (selectedUnit.moveState == MoveState_e.attack){ // special attack rules, includes a move
+				Tile targetTile = unit.currentSpace;
+				unit.Remove ();
+				selectedUnit.MoveTo(targetTile);
+			}	
+			else {
+				// just remove the unit
+				unit.Remove ();
+			}
+			++receivedMoveOrders;
+			UnSelectUnit();
+		}
 	}
 
 	public void EndTurn(){
 		UnSelectUnit ();
 		receivedMoveOrders = moves_per_turn;
 		receivedChangeOrders = changes_per_turn;
+	}
+
+	// check if this unit is on its enemy's flag, if so, cue fireworks
+	void CheckForGameEnd(Unit unit){
+		if (unit.team == Team_e.red && unit.currentSpace.flag == Flag_e.blue){
+			GameEnd(Team_e.blue);
+		}
+		else if (unit.team == Team_e.blue && unit.currentSpace.flag == Flag_e.red){ 
+			GameEnd(Team_e.red);
+		}
+	}
+
+	void GameEnd(Team_e victor){
+		print ("Game over, yo");
+		StopAllCoroutines ();
+		// display some awesome message indicating who won
 	}
 }

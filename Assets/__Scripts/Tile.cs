@@ -5,14 +5,19 @@ public enum TerrainType_e{
 	river,
 	plain,
 	plateau,
-	mountain,
-	flagR,
-	flagB
+	mountain
 }
 
-public class Tile : MonoBehaviour {
+public enum Flag_e{
+	red,
+	blue,
+	none
+}
+
+public class Tile : MonoBehaviour, Highlightable {
 
 	public TerrainType_e terrType;
+	public Flag_e flag;
 
 	public Material normalMat;
 	public Material highlightMat;
@@ -21,12 +26,12 @@ public class Tile : MonoBehaviour {
 
 	public bool selectable;
 
-	public bool occupied;
+	public Unit unit;
+
 
 	MeshRenderer render;
 
 	void Awake(){
-		occupied = false;
 		selectable = false;
 		highlighted = false;
 		render = GetComponent<MeshRenderer> ();
@@ -48,12 +53,13 @@ public class Tile : MonoBehaviour {
 			render.material = normalMat;
 
 		} else {
+			if (unit != null) return;
 			highlighted = true;
 			render.material = highlightMat;
 		}
 	}
 
 	public void OnMouseUpAsButton(){
-		print ("clicked this mug");
+		TurnManager.S.SelectTile (this);
 	}
 }
