@@ -106,12 +106,16 @@ public class Unit : MonoBehaviour, Highlightable {
 			stateSymbol.sprite = attakSprite;
 			break;
 		case MoveState_e.downMove:
+			stateSymbol.sprite = downMoveSprite;
 			break;
 		case MoveState_e.downAttack:
+			stateSymbol.sprite = downAttackSprite;
 			break;
 		case MoveState_e.upMove:
+			stateSymbol.sprite = upMoveSprite;
 			break;
 		case MoveState_e.upAttack:
+			stateSymbol.sprite = upAttackSprite;
 			break;
 		}
 	}
