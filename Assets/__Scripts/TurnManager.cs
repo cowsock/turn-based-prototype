@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+//using UnityEditor;
 
 public enum Team_e{
 	red,
@@ -39,6 +39,7 @@ public class TurnManager : MonoBehaviour {
 	public Text changesRemaining;
 	public GameObject gearChangeCanvas;
 	public Text movesRemaining;
+	public Text winnerText;
 
 
 	public Unit selectedUnit;
@@ -75,6 +76,7 @@ public class TurnManager : MonoBehaviour {
 		//changesRemaining.enabled = false;
 		gearChangeCanvas.SetActive(false);
 		movesRemaining.enabled = false;
+		winnerText.enabled = false;
 		StartCoroutine (MovePhase ());
 		playerOptions = null;
 		
@@ -259,17 +261,20 @@ public class TurnManager : MonoBehaviour {
 	// check if this unit is on its enemy's flag, if so, cue fireworks
 	void CheckForGameEnd(Unit unit){
 		if (unit.team == Team_e.red && unit.currentSpace.flag == Flag_e.blue){
-			EditorUtility.DisplayDialog("Winner", "Red wins!", "nice");
-			GameEnd(Team_e.blue);
+			winnerText.text = "Red Wins!";
+			winnerText.color = Color.red;
+			GameEnd(Team_e.red);
 		}
 		else if (unit.team == Team_e.blue && unit.currentSpace.flag == Flag_e.red){ 
-			EditorUtility.DisplayDialog("Winner", "Blue wins!", "nice");
-			GameEnd(Team_e.red);
+			winnerText.text = "Blue Wins!";
+			winnerText.color = Color.blue;
+			GameEnd(Team_e.blue);
 		}
 	}
 
 	void GameEnd(Team_e victor){
 		print ("Game over, yo");
+		winnerText.enabled = true;
 		StopAllCoroutines ();
 		// display some awesome message indicating who won
 	}
