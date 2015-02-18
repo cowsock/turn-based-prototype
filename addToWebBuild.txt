@@ -1,0 +1,18 @@
+<p>Move one of your pieces onto the opposing side's flag.</p>
+<h1>Controls And Explanation</h1>
+<p>Every turn, you can either (move or attack) <i>or</i> ajust the state of each of your units.</p>
+<p>This is divided into two phases.</p>
+<h2>Move Phase</h2>
+<p>Click a unit to select it. Then click a highlighted space to move it there, or a highlighted enemy to attack that enemy.</p>
+<p>You may move all of your units every turn if you wish.</p>
+<p>To skip to the next phase, press the button in the upper right corner.</p>
+<h2>Gear Change Phase</h2>
+<p>Click any unit that <b>has not yet been moved</b> to select it, and press one of the 6 Gear Change buttons to adjust the unit.</p>
+<p>Press the Skip Phase button if your are satisfied with the configuration of your units.</p>
+<p>These options give units different movement or attacking options: (upward, on the same elevation, and downward)</p>
+<p>The Move Up (Climbing a Rock Wall) and Move Down (Rappelling) states are needed to ascend to or descend from the highest elevation (mountains) </p>
+<p>Attack options are more varied. The up attack option (bow and arrow) can target an enemy on a diagonal AND above the unit in elevation.
+The down attack option (Boiling Oil) can target an enemy in any adjacent space (orthoganal and diagonal), provided that the enemy is lower in elevation.
+Finally, the ground attack option can target an orthogonally adjacent space, and additionally includes a movement onto that space. </p>
+<h1>Credits</h1>
+<p>Pegasus Boots sprite taken from The Legend of Zelda: Four Swords</p>
