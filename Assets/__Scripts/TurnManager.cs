@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 
 public enum Team_e{
 	red,
@@ -18,8 +19,8 @@ public enum turnState_e{
 
 public class TurnManager : MonoBehaviour {
 	static public TurnManager S;
-	//static public List<Unit> redTeam;
-	//static public List<Unit> blueTeam;
+	public List<Unit> redTeam;
+	public List<Unit> blueTeam;
 
 	public int moves_per_turn;
 	public int changes_per_turn;
@@ -37,6 +38,7 @@ public class TurnManager : MonoBehaviour {
 	public Text curPhaseText;
 	public Text changesRemaining;
 	public GameObject gearChangeCanvas;
+	public Text movesRemaining;
 
 
 	public Unit selectedUnit;
@@ -72,6 +74,7 @@ public class TurnManager : MonoBehaviour {
 		receivedChangeOrders = 0;
 		//changesRemaining.enabled = false;
 		gearChangeCanvas.SetActive(false);
+		movesRemaining.enabled = false;
 		StartCoroutine (MovePhase ());
 		playerOptions = null;
 		
@@ -86,6 +89,16 @@ public class TurnManager : MonoBehaviour {
 
 	IEnumerator MovePhase(){
 		receivedMoveOrders = 0;
+		movesRemaining.enabled = true;
+		if (activePlayer == Team_e.red) {
+			while ((moves_per_turn - receivedMoveOrders) > redTeam.Count){
+				++receivedMoveOrders;
+			}
+		} else {
+			while ((moves_per_turn - receivedMoveOrders) > blueTeam.Count){
+				++receivedMoveOrders;
+			}
+		}
 		while (receivedMoveOrders < moves_per_turn) {
 			if (selectedUnit && playerOptions == null){
 				if (!selectedUnit.Attacker()){
@@ -102,17 +115,40 @@ public class TurnManager : MonoBehaviour {
 			}
 			yield return null;
 		}
-		//*** be sure to check for game end here. 
+		movesRemaining.enabled = false;
 		turnPhase = turnState_e.change;
 		StartCoroutine (ChangePhase ());
 	}
 
 	IEnumerator ChangePhase(){
 		receivedChangeOrders = 0;
+		if (activePlayer == Team_e.red) {
+			foreach(Unit u in redTeam){
+				if (u.moved)
+					++receivedChangeOrders;
+			}
+			while ((changes_per_turn - receivedChangeOrders) > redTeam.Count)	
+				++receivedChangeOrders;
+		} else {
+			foreach(Unit u in blueTeam){
+				if (u.moved)
+					++receivedChangeOrders;
+			}
+			while ((changes_per_turn - receivedChangeOrders) > blueTeam.Count)
+				++receivedChangeOrders;
+		}
 		//changesRemaining.enabled = true;
 		gearChangeCanvas.SetActive(true);
 		while (receivedChangeOrders < changes_per_turn) {
 			yield return null;		
+		}
+		// set everyone to not moved
+		if (activePlayer == Team_e.red) {
+			foreach(Unit u in redTeam)
+				u.moved = false;
+		} else {
+			foreach(Unit u in blueTeam)
+				u.moved = false;
 		}
 		// switch active player
 		if (activePlayer == Team_e.red) {
@@ -122,11 +158,13 @@ public class TurnManager : MonoBehaviour {
 		}
 		turnPhase = turnState_e.movement;
 		//changesRemaining.enabled = false;
+	
 		gearChangeCanvas.SetActive(false);
 		StartCoroutine (MovePhase ());
 	}
 
 	public void OnGUI(){
+		movesRemaining.text = "Moves Remaining: " + (moves_per_turn - receivedMoveOrders);
 		changesRemaining.text = "Gear Changes Remaining: " + (changes_per_turn - receivedChangeOrders);
 		if (activePlayer == Team_e.blue) {
 						curPlayerText.color = Color.blue;
@@ -143,6 +181,8 @@ public class TurnManager : MonoBehaviour {
 	}
 
 	public void SelectUnit(Unit unit){
+		if (unit.moved)
+						return;
 		if (activePlayer != unit.team) {
 			if (turnPhase == turnState_e.movement){
 				SelectEnemy (unit);
@@ -202,6 +242,7 @@ public class TurnManager : MonoBehaviour {
 			}	
 			else {
 				// just remove the unit
+				selectedUnit.moved = true;
 				unit.Remove ();
 			}
 			++receivedMoveOrders;
@@ -218,9 +259,11 @@ public class TurnManager : MonoBehaviour {
 	// check if this unit is on its enemy's flag, if so, cue fireworks
 	void CheckForGameEnd(Unit unit){
 		if (unit.team == Team_e.red && unit.currentSpace.flag == Flag_e.blue){
+			EditorUtility.DisplayDialog("Winner", "Red wins!", "nice");
 			GameEnd(Team_e.blue);
 		}
 		else if (unit.team == Team_e.blue && unit.currentSpace.flag == Flag_e.red){ 
+			EditorUtility.DisplayDialog("Winner", "Blue wins!", "nice");
 			GameEnd(Team_e.red);
 		}
 	}

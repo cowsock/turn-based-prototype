@@ -65,8 +65,13 @@ public class Unit : MonoBehaviour, Highlightable {
 	// Use this for initialization
 	void Start () {
 		highlighted = false;
+		moved = false;
 		MoveTo (x, y);
 		SetState (moveState);
+		if (team == Team_e.red)
+						TurnManager.S.redTeam.Add (this);
+				else 
+						TurnManager.S.blueTeam.Add (this);
 	}
 
 	// does the actual movement (position-wise)
@@ -83,12 +88,17 @@ public class Unit : MonoBehaviour, Highlightable {
 	}
 
 	public void MoveTo(Tile tile){
+		moved = true;
 		MoveTo ((int)tile.transform.position.x, (int)tile.transform.position.z);
 	}
 	
 	public void Remove(){
 		currentSpace.unit = null;
 		currentSpace = null;
+		if (team == Team_e.red)
+						TurnManager.S.redTeam.Remove (this);
+				else
+						TurnManager.S.blueTeam.Remove (this);
 		Destroy (this.gameObject);
 	}
 
