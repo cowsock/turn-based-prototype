@@ -28,7 +28,7 @@ public class TurnManager : MonoBehaviour {
 	public Team_e activePlayer; 
 	public turnState_e turnPhase;
 
-	int receivedMoveOrders;
+	public int receivedMoveOrders;
 	int receivedChangeOrders;
 
 	List<Highlightable> playerOptions;
@@ -41,6 +41,7 @@ public class TurnManager : MonoBehaviour {
 	public Text movesRemaining;
 	public Text winnerText;
 
+	bool firstTurn = false;
 
 	public Unit selectedUnit;
 
@@ -77,7 +78,8 @@ public class TurnManager : MonoBehaviour {
 		gearChangeCanvas.SetActive(false);
 		movesRemaining.enabled = false;
 		winnerText.enabled = false;
-		StartCoroutine (MovePhase ());
+		//StartCoroutine (MovePhase ());
+		StartCoroutine (startingOut ());
 		playerOptions = null;
 		
 	}
@@ -87,7 +89,10 @@ public class TurnManager : MonoBehaviour {
 		// just for stuff that is always active.
 	}
 
-
+	IEnumerator startingOut(){
+		yield return new WaitForSeconds (0.25f);
+		StartCoroutine (MovePhase ());
+	}
 
 	IEnumerator MovePhase(){
 		receivedMoveOrders = 0;
